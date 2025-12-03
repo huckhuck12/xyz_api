@@ -14,6 +14,11 @@ func RegisterRouters(engine *gin.Engine) {
 		server := http.FileServer(http.FS(docs.Fs))
 		server.ServeHTTP(context.Writer, context.Request)
 	})
+	engine.GET("/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "xyz api on vercel",
+		})
+	})
 	engine.GET("/ping", handlers.Pong)
 	engine.POST("/sendCode", handlers.SendCode)                                                                           // 发送验证码
 	engine.POST("/login", handlers.Login)                                                                                 // 验证码登录
