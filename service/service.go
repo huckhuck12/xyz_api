@@ -10,6 +10,17 @@ import (
 	"github.com/ultrazg/xyz/utils"
 )
 
+func NewEngine() *gin.Engine {
+	gin.SetMode(gin.ReleaseMode)
+	engine := gin.New()
+
+	engine.Use(Cors())
+
+	router.RegisterRouters(engine)
+
+	return engine
+}
+
 func Start() error {
 	p, d := utils.InitFlag()
 
@@ -29,12 +40,7 @@ func Start() error {
 		}
 	}()
 
-	gin.SetMode(gin.ReleaseMode)
-	engine := gin.New()
-
-	engine.Use(Cors())
-
-	router.RegisterRouters(engine)
+	engine := NewEngine()
 
 	log.Printf("server start on %s", port)
 
