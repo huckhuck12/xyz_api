@@ -23,6 +23,13 @@ func InitFlag() (int, bool) {
 	}
 	flag.Parse()
 
+	// 优先使用环境变量 PORT（Render/Heroku 等平台）
+	if envPort := os.Getenv("PORT"); envPort != "" {
+		if p, err := strconv.Atoi(envPort); err == nil {
+			port = p
+		}
+	}
+
 	return port, doc
 }
 
