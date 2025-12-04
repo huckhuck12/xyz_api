@@ -72,12 +72,20 @@ func Request(url, method string, body map[string]any, headers map[string]string)
 		return nil, 0, fmt.Errorf("failed to send request: %v", retryErr)
 	}
 
-	// 未登录
-	if resp.StatusCode == http.StatusUnauthorized {
-		return nil, resp.StatusCode, fmt.Errorf("received 401 status code: %d", resp.StatusCode)
-	}
+	// 读取响应内容，便于在错误时输出真实错误信息
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return nil, resp.StatusCode, fmt.Errorf("received non-200 status code: %d", resp.StatusCode)
+		// 尽量读取 body，但不要因为读取失败而丢失状态码信息
+		var bodyBytes []byte
+		if resp.Body != nil {
+			bodyBytes, _ = io.ReadAll(resp.Body)
+			resp.Body.Close()
+		}
+
+		if resp.StatusCode == http.StatusUnauthorized {
+			return nil, resp.StatusCode, fmt.Errorf("received 401 status code: %d, body: %s", resp.StatusCode, string(bodyBytes))
+		}
+
+		return nil, resp.StatusCode, fmt.Errorf("received non-200 status code: %d, body: %s", resp.StatusCode, string(bodyBytes))
 	}
 
 	return resp, resp.StatusCode, nil
